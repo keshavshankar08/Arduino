@@ -11,12 +11,27 @@ RFID rfid(SS_PIN, RST_PIN);
 String rfidCard;
 #define numIds(arg) ((unsigned int) (sizeof(arg) / sizeof(arg[0])))
 
+int redLED = 5;
+int greenLED = 6;
+int lockStatusLED = 4;
+
 void setup() {
   Serial.begin(9600);
   //lcd setup
   lcd.init();
   lcd.backlight();
   lcd.print("Scanning...");
+  //LED setup
+  pinMode(redLED,OUTPUT);
+  pinMode(greenLED,OUTPUT);
+  digitalWrite(redLED,HIGH);
+  delay(200);
+  digitalWrite(greenLED,HIGH);
+  delay(200);
+  digitalWrite(redLED,LOW);
+  delay(200);
+  digitalWrite(greenLED,LOW);
+  digitalWrite(lockStatusLED,HIGH);
   //RFID setup
   Serial.println("Scanning...");
   SPI.begin();
@@ -41,7 +56,11 @@ void checkAccess(String card){
   for(int i = 0; i < numIds(authorizedUsersIds); i++){
     if(rfidCard == authorizedUsersIds[i]){
       lcd.clear();
+      digitalWrite(greenLED,HIGH);
       lcd.print("Welcome " + authorizedUsers[i] + "!");
+      delay(2000);
+      digitalWrite(lockStatusLED,LOW);
+      digitalWrite(greenLED,LOW);
       checkValidity = true;
       break;
     }
@@ -49,7 +68,9 @@ void checkAccess(String card){
   if(checkValidity == false){
     lcd.clear();
     lcd.print("Invalid Id!");
-    delay(1000);
+    digitalWrite(redLED,HIGH);
+    delay(2000);
+    digitalWrite(redLED,LOW);
     lcd.clear();
     lcd.print("Scanning...");
   }
